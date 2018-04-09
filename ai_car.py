@@ -6,16 +6,16 @@ import _pickle as pickle
 
 # settings
 render = False
-print_policy = True
+print_policy = False
 resume = True
 file_name = 'model.p'
 
 # hyper parameters
-D = 30
-MAX_ITERATIONS = 50000
+D = 40
+MAX_ITERATIONS = 360000
 LEARNING_RATE_INITIAL = 1
-LEARNING_RATE_MINIMUM = 0.005
-EPSILON_INITIAL = 0.05
+LEARNING_RATE_MINIMUM = 0.01
+EPSILON_INITIAL = 0.1
 EPSILON_MINIMUM = 0.02
 
 def init_model(environment):
@@ -57,7 +57,7 @@ def update_table(environment, observation, q_table, s1, s2, action, reward, lear
     return learning_rate
 
 def compute_learing_rate(iteration):
-    decay = 0.85 ** (iteration / 100)
+    decay = 0.85 ** (iteration // 100)
     learning_rate = max(LEARNING_RATE_INITIAL * decay, LEARNING_RATE_MINIMUM)
     return learning_rate
 
