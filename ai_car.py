@@ -6,13 +6,13 @@ import _pickle as pickle
 
 # settings
 render = False
-print_policy = False
+print_policy = True
 resume = True
-file_name = 'model.p'
+file_name = 'lr001i600000.p'
 
 # hyper parameters
 D = 40
-MAX_ITERATIONS = 360000
+MAX_ITERATIONS = 700000
 LEARNING_RATE_INITIAL = 1
 LEARNING_RATE_MINIMUM = 0.01
 EPSILON_INITIAL = 0.1
@@ -90,13 +90,13 @@ def main():
             print('Iteration: {}, average reward: {}, lr: {}'.format(i, avg_reward, learning_rate))
             if (print_policy):
                 policy = np.argmax(q_table, axis=2)
-                print(policy)
+                print(policy[::2, ::2])
             model['q_table'] = q_table
             model['iteration'] = i
             model['rewards'] = rewards
             pickle.dump(model, open(file_name, 'wb'))
-    plt.plot(rewards)
-    plt.show()
+            plt.plot(rewards)
+            plt.savefig(file_name + 'ng')
 
 if __name__ == '__main__':
     main()
