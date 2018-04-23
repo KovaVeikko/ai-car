@@ -8,22 +8,23 @@ import _pickle as pickle
 render = False
 print_policy = True
 resume = True
-file_name = 'lr001i600000.p'
+file_name = 'lr001d20e001.p'
 
 # hyper parameters
-D = 40
-MAX_ITERATIONS = 700000
-LEARNING_RATE_INITIAL = 1
+D = 20
+MAX_ITERATIONS = 200000
+LEARNING_RATE_INITIAL = 0.5
 LEARNING_RATE_MINIMUM = 0.01
 EPSILON_INITIAL = 0.1
-EPSILON_MINIMUM = 0.02
+EPSILON_MINIMUM = 0.01
 
 def init_model(environment):
     q_table = np.zeros((D, D, environment.action_space.n))
     model = {
         'q_table': q_table,
         'iteration': 0,
-        'rewards': []
+        'rewards': [],
+        'max_reward': -200,
     }
     if resume:
         try:
@@ -57,7 +58,7 @@ def update_table(environment, observation, q_table, s1, s2, action, reward, lear
     return learning_rate
 
 def compute_learing_rate(iteration):
-    decay = 0.85 ** (iteration // 100)
+    decay = 1/(LEARNING_RATE_INITIAL * np.sqrt(iteration * 0.01) + 1)
     learning_rate = max(LEARNING_RATE_INITIAL * decay, LEARNING_RATE_MINIMUM)
     return learning_rate
 
@@ -67,6 +68,7 @@ def main():
     q_table = model['q_table']
     iteration = model['iteration']
     rewards = model['rewards']
+    max_avg_reward = model['max_reward']
     reward_sum = 0
     step = 0
     for i in range(iteration, MAX_ITERATIONS):
@@ -85,15 +87,19 @@ def main():
                 break
         if i % 100 == 0 and step != 1:
             avg_reward = reward_sum/100
+            if avg_reward > max_avg_reward:
+                max_avg_reward = avg_reward
             rewards.append(avg_reward)
             reward_sum = 0
-            print('Iteration: {}, average reward: {}, lr: {}'.format(i, avg_reward, learning_rate))
+            print('Iteration: {}, high: {},  average reward: {}, lr: {}'.format(i, max_avg_reward, avg_reward, learning_rate))
             if (print_policy):
                 policy = np.argmax(q_table, axis=2)
+                print("Policy table:")
                 print(policy[::2, ::2])
             model['q_table'] = q_table
             model['iteration'] = i
             model['rewards'] = rewards
+            model['max_reward'] = max_avg_reward
             pickle.dump(model, open(file_name, 'wb'))
             plt.plot(rewards)
             plt.savefig(file_name + 'ng')
