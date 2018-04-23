@@ -5,14 +5,14 @@ import _pickle as pickle
 
 
 # settings
-render = False
+render = True
 print_policy = True
 resume = True
 file_name = 'lr001d20e001.p'
 
 # hyper parameters
 D = 20
-MAX_ITERATIONS = 200000
+MAX_ITERATIONS = 500000
 LEARNING_RATE_INITIAL = 0.5
 LEARNING_RATE_MINIMUM = 0.01
 EPSILON_INITIAL = 0.1
@@ -75,7 +75,7 @@ def main():
         step += 1
         observation = environment.reset()
         while True:
-            if render:
+            if render and i % 1000 == 0:
                 environment.render()
             s1, s2 = observation_to_table_index(environment, observation)
             action = sample_action(environment, q_table, s1, s2, i)
